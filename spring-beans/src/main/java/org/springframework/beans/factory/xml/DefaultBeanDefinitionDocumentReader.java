@@ -95,6 +95,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		this.readerContext = readerContext;
 		logger.debug("Loading bean definitions");
 		Element root = doc.getDocumentElement();
+		// TODO 获取doc的root节点，然后通过root去解析xml
 		doRegisterBeanDefinitions(root);
 	}
 

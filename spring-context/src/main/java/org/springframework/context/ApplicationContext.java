@@ -16,6 +16,7 @@
 
 package org.springframework.context;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.HierarchicalBeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -114,4 +115,6 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 	 */
 	AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException;
 
+	@Override
+	Object getBean(String name) throws BeansException;
 }

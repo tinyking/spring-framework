@@ -527,7 +527,10 @@ public class BeanDefinitionParserDelegate {
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
 
+			// TODO 会发现这几个parse的逻辑相似，都是遍历node节点，Spring将这些遍历每次都写一边，体现了单一职责的原则
+			// TODO 解析构造函数
 			parseConstructorArgElements(ele, bd);
+			// TODO 解析property
 			parsePropertyElements(ele, bd);
 			parseQualifierElements(ele, bd);
 
@@ -577,6 +580,7 @@ public class BeanDefinitionParserDelegate {
 			bd.setAbstract(TRUE_VALUE.equals(ele.getAttribute(ABSTRACT_ATTRIBUTE)));
 		}
 
+		// TODO 懒加载属性解析
 		String lazyInit = ele.getAttribute(LAZY_INIT_ATTRIBUTE);
 		if (DEFAULT_VALUE.equals(lazyInit)) {
 			lazyInit = this.defaults.getLazyInit();
@@ -607,6 +611,7 @@ public class BeanDefinitionParserDelegate {
 			bd.setPrimary(TRUE_VALUE.equals(ele.getAttribute(PRIMARY_ATTRIBUTE)));
 		}
 
+		// TODO 解析init method属性，该方法会在实例化后调用
 		if (ele.hasAttribute(INIT_METHOD_ATTRIBUTE)) {
 			String initMethodName = ele.getAttribute(INIT_METHOD_ATTRIBUTE);
 			bd.setInitMethodName(initMethodName);

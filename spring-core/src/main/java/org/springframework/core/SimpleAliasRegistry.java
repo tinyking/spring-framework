@@ -212,6 +212,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	public String canonicalName(String name) {
 		String canonicalName = name;
 		// Handle aliasing...
+		// TODO alias名，如果传入的是alias，则解析出对应的bean name
 		String resolvedName;
 		do {
 			resolvedName = this.aliasMap.get(canonicalName);
