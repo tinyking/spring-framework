@@ -368,6 +368,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 	public <T> T execute(StatementCallback<T> action) throws DataAccessException {
 		Assert.notNull(action, "Callback object must not be null");
 
+		// 执行静态SQL的函数
+		// 1. 建立连接
+		// 2. 创建一个Statement
+		// 3. 通过回调接口来出来具体的执行SQL
+		// 4. 返回结果
+		// 5. 最后一定要释放资源
 		Connection con = DataSourceUtils.getConnection(obtainDataSource());
 		Statement stmt = null;
 		try {
@@ -388,6 +394,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 			throw translateException("StatementCallback", sql, ex);
 		}
 		finally {
+			// 在finally里面去释放Statement和connect连接
 			JdbcUtils.closeStatement(stmt);
 			DataSourceUtils.releaseConnection(con, getDataSource());
 		}
@@ -395,10 +402,14 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 
 	@Override
 	public void execute(final String sql) throws DataAccessException {
+		// 通过函数重载，简化执行方法的使用
+
+		// 日志的打印加上if判断，当false就不需要执行内部的String拼接，优化性能
 		if (logger.isDebugEnabled()) {
 			logger.debug("Executing SQL statement [" + sql + "]");
 		}
 
+		// 声明一个内部类，集成回调接口，这样就可以将静态SQL封装好，同过模板方法，提高代码复用
 		class ExecuteStatementCallback implements StatementCallback<Object>, SqlProvider {
 			@Override
 			@Nullable
@@ -412,6 +423,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 			}
 		}
 
+		// 传入封装好的Statement回调
 		execute(new ExecuteStatementCallback());
 	}
 
@@ -521,6 +533,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 			logger.debug("Executing SQL batch update of " + sql.length + " statements");
 		}
 
+		// 批量更新内部类，实现回调接口
 		class BatchUpdateStatementCallback implements StatementCallback<int[]>, SqlProvider {
 
 			@Nullable
@@ -529,6 +542,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 			@Override
 			public int[] doInStatement(Statement stmt) throws SQLException, DataAccessException {
 				int[] rowsAffected = new int[sql.length];
+				// 判断当前数据库是否支持批量更新。
+				// 如果支持，则将SQL逐条添加到batch中，然后统一执行
+				// 如果不支持，则将SQL逐条执行，将每一条SQL的执行结果保存到结果集合中。
 				if (JdbcUtils.supportsBatchUpdates(stmt.getConnection())) {
 					for (String sqlStmt : sql) {
 						this.currSql = appendSql(this.currSql, sqlStmt);
